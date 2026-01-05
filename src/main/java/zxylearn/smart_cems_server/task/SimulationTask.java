@@ -61,8 +61,14 @@ public class SimulationTask {
             // 计算累计用电量
             calculateAccumulation(data, meter);
 
-            // 1. 写入 Redis 缓存 (List)
+            // 1. 写入 Redis 缓存 (List) - 用于持久化
             redisTemplate.opsForList().rightPush(REDIS_DATA_KEY, data);
+
+            // 2. 写入 Redis 趋势缓存 (List) - 用于前端实时查询
+            // 维护每个设备最近 50 条数据
+            String trendKey = "meter:trend:" + meter.getSn();
+            redisTemplate.opsForList().leftPush(trendKey, data);
+            redisTemplate.opsForList().trim(trendKey, 0, 49);
 
             // 发布事件 (观察者模式) - 依然实时触发告警
             eventPublisher.publishEvent(new EnergyDataCollectedEvent(this, data, meter));

@@ -12,7 +12,6 @@ import zxylearn.smart_cems_server.entity.AlertRecord;
 
 import zxylearn.smart_cems_server.service.AlertRecordService;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/alert")
