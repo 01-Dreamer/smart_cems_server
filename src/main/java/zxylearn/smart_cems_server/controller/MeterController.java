@@ -1,0 +1,31 @@
+package zxylearn.smart_cems_server.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import zxylearn.smart_cems_server.entity.Meter;
+import zxylearn.smart_cems_server.service.MeterService;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/meter")
+@Tag(name = "设备管理", description = "智能电表设备管理接口")
+public class MeterController {
+
+    @Autowired
+    private MeterService meterService;
+
+    @GetMapping("/list")
+    @Operation(summary = "获取所有设备列表")
+    public List<Meter> list() {
+        return meterService.list();
+    }
+
+    @PostMapping("/add")
+    @Operation(summary = "添加设备")
+    public boolean add(@RequestBody Meter meter) {
+        return meterService.addMeter(meter);
+    }
+}
