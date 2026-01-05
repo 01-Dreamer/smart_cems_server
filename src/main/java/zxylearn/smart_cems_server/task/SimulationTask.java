@@ -2,6 +2,7 @@ package zxylearn.smart_cems_server.task;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import zxylearn.smart_cems_server.entity.EnergyData;
@@ -13,9 +14,12 @@ import zxylearn.smart_cems_server.service.MeterService;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Component
 public class SimulationTask {
 
@@ -30,6 +34,11 @@ public class SimulationTask {
 
     @Autowired
     private SimulationDataFactory simulationDataFactory;
+
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private static final String REDIS_DATA_KEY = "energy:data:buffer";
 
     private final Random random = new Random();
     private int recordCount = 0;
@@ -52,10 +61,35 @@ public class SimulationTask {
             // 计算累计用电量
             calculateAccumulation(data, meter);
 
-            energyDataService.save(data);
+            // 1. 写入 Redis 缓存 (List)
+            redisTemplate.opsForList().rightPush(REDIS_DATA_KEY, data);
 
-            // 发布事件 (观察者模式)
+            // 发布事件 (观察者模式) - 依然实时触发告警
             eventPublisher.publishEvent(new EnergyDataCollectedEvent(this, data, meter));
+        }
+    }
+
+    @Scheduled(fixedRate = 60000) // 每1分钟同步一次到 MySQL
+    public void syncDataToDb() {
+        List<EnergyData> batchList = new ArrayList<>();
+        Long size = redisTemplate.opsForList().size(REDIS_DATA_KEY);
+        
+        if (size != null && size > 0) {
+            // 每次最多同步 1000 条，避免一次性压力过大
+            int batchSize = 1000;
+            long count = Math.min(size, batchSize);
+            
+            for (int i = 0; i < count; i++) {
+                EnergyData data = (EnergyData) redisTemplate.opsForList().leftPop(REDIS_DATA_KEY);
+                if (data != null) {
+                    batchList.add(data);
+                }
+            }
+            
+            if (!batchList.isEmpty()) {
+                energyDataService.saveBatch(batchList);
+                log.info("已从 Redis 同步 {} 条记录到 MySQL。", batchList.size());
+            }
         }
     }
 

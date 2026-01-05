@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
 import zxylearn.smart_cems_server.entity.Meter;
 import zxylearn.smart_cems_server.service.MeterService;
 
@@ -27,6 +28,7 @@ public class MeterController {
 
     @PostMapping("/add")
     @Operation(summary = "添加设备")
+    @PreAuthorize("hasRole('ADMIN')")
     public Result<Boolean> add(@RequestBody Meter meter) {
         return Result.success(meterService.addMeter(meter));
     }

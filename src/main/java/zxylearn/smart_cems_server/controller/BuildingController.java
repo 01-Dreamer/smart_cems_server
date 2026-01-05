@@ -3,6 +3,7 @@ package zxylearn.smart_cems_server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import zxylearn.smart_cems_server.entity.Building;
 import zxylearn.smart_cems_server.service.BuildingService;
@@ -26,9 +27,11 @@ public class BuildingController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "添加建筑")
+    @Operation(summary = "添加建筑 (仅管理员)")
+    @PreAuthorize("hasRole('ADMIN')")
     public Result<Boolean> add(@RequestBody Building building) {
         return Result.success(buildingService.save(building));
     }
 }
+
 

@@ -1,5 +1,8 @@
 package zxylearn.smart_cems_server.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,8 +11,6 @@ import zxylearn.smart_cems_server.entity.EnergyData;
 import zxylearn.smart_cems_server.service.EnergyDataService;
 
 import zxylearn.smart_cems_server.common.Result;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/energy")
@@ -20,9 +21,14 @@ public class EnergyDataController {
     private EnergyDataService energyDataService;
 
     @GetMapping("/list")
-    @Operation(summary = "获取所有能耗数据")
-    public Result<List<EnergyData>> list() {
-        return Result.success(energyDataService.list());
+    @Operation(summary = "获取能耗数据 (分页)")
+    public Result<IPage<EnergyData>> list(
+            @RequestParam(defaultValue = "1") Integer page,
+            @RequestParam(defaultValue = "10") Integer size) {
+        Page<EnergyData> pageParam = new Page<>(page, size);
+        return Result.success(energyDataService.page(pageParam, new LambdaQueryWrapper<EnergyData>()
+                .orderByDesc(EnergyData::getCollectTime)));
     }
 }
+
 
