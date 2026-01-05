@@ -20,10 +20,11 @@ public class AlertEventListener {
     @Autowired
     private AlertRecordService alertRecordService;
 
-    // Pattern: Observer Pattern
+    // 设计模式：观察者模式 (Observer Pattern)
     @EventListener
-    @Async // Optional: Process alerts asynchronously
+    @Async // 可选：异步处理告警
     public void handleEnergyDataCollected(EnergyDataCollectedEvent event) {
+
         for (AlertStrategy strategy : alertStrategies) {
             Optional<AlertRecord> alert = strategy.check(event.getEnergyData(), event.getMeter());
             alert.ifPresent(alertRecordService::save);

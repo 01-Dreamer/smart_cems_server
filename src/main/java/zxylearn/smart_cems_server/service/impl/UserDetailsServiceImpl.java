@@ -20,7 +20,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         SysUser sysUser = sysUserMapper.selectOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUsername, username));
         if (sysUser == null) {
-            throw new UsernameNotFoundException("User not found");
+            throw new UsernameNotFoundException("用户不存在");
         }
         return User.builder()
                 .username(sysUser.getUsername())

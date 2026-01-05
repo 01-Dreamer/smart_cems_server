@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import zxylearn.smart_cems_server.entity.EnergyData;
 import zxylearn.smart_cems_server.service.EnergyDataService;
 
+import zxylearn.smart_cems_server.common.Result;
+
 import java.util.List;
 
 @RestController
@@ -19,7 +21,8 @@ public class EnergyDataController {
 
     @GetMapping("/list")
     @Operation(summary = "获取所有能耗数据")
-    public List<EnergyData> list() {
-        return energyDataService.list();
+    public Result<List<EnergyData>> list() {
+        return Result.success(energyDataService.list());
     }
 }
+

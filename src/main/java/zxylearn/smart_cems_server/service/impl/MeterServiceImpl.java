@@ -12,14 +12,14 @@ public class MeterServiceImpl extends ServiceImpl<MeterMapper, Meter> implements
 
     @Override
     public boolean addMeter(Meter meter) {
-        // Constraint: One room can only have one active meter
+        // 约束：同一个房间只能有一个有效设备（非拆除状态）
         if (!"REMOVED".equals(meter.getStatus())) {
             Long count = this.count(new LambdaQueryWrapper<Meter>()
                     .eq(Meter::getBuildingId, meter.getBuildingId())
                     .eq(Meter::getRoomNo, meter.getRoomNo())
                     .ne(Meter::getStatus, "REMOVED"));
             if (count > 0) {
-                throw new RuntimeException("Room already has an active meter!");
+                throw new RuntimeException("该房间已存在有效设备！");
             }
         }
         return this.save(meter);

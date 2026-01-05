@@ -20,7 +20,7 @@ public class VoltageAlertStrategy implements AlertStrategy {
             alert.setMeterId(meter.getId());
             alert.setAlertType("VOLTAGE_ABNORMAL");
             alert.setAlertValue(voltage);
-            alert.setDetails("Voltage " + voltage + "V is out of normal range (198V-242V)");
+            alert.setDetails("电压 " + voltage + "V 超出正常范围 (198V-242V)");
             alert.setTriggerTime(LocalDateTime.now());
             return Optional.of(alert);
         }

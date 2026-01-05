@@ -7,6 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import zxylearn.smart_cems_server.entity.Meter;
 import zxylearn.smart_cems_server.service.MeterService;
 
+import zxylearn.smart_cems_server.common.Result;
+
 import java.util.List;
 
 @RestController
@@ -19,13 +21,14 @@ public class MeterController {
 
     @GetMapping("/list")
     @Operation(summary = "获取所有设备列表")
-    public List<Meter> list() {
-        return meterService.list();
+    public Result<List<Meter>> list() {
+        return Result.success(meterService.list());
     }
 
     @PostMapping("/add")
     @Operation(summary = "添加设备")
-    public boolean add(@RequestBody Meter meter) {
-        return meterService.addMeter(meter);
+    public Result<Boolean> add(@RequestBody Meter meter) {
+        return Result.success(meterService.addMeter(meter));
     }
 }
+
