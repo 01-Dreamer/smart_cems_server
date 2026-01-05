@@ -6,4 +6,6 @@ import lombok.Data;
 public class LoginRequest {
     private String username;
     private String password;
+    private String uuid; // 图形验证码UUID
+    private String code; // 图形验证码
 }

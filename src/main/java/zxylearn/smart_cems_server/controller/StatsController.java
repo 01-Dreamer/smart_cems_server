@@ -19,10 +19,12 @@ public class StatsController {
 
     private final StatsService statsService;
 
-    @Operation(summary = "获取设备历史趋势 (最近10条)")
+    @Operation(summary = "获取设备历史趋势 (默认最近10条)")
     @GetMapping("/trend")
-    public Result<List<EnergyData>> getMeterTrend(@RequestParam String sn) {
-        return Result.success(statsService.getMeterTrend(sn));
+    public Result<List<EnergyData>> getMeterTrend(
+            @RequestParam String sn,
+            @RequestParam(defaultValue = "10") Integer limit) {
+        return Result.success(statsService.getMeterTrend(sn, limit));
     }
 
     @Operation(summary = "获取建筑今日用电占比")

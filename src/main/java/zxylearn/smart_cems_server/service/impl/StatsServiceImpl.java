@@ -21,7 +21,7 @@ public class StatsServiceImpl implements StatsService {
     private final MeterMapper meterMapper;
 
     @Override
-    public List<EnergyData> getMeterTrend(String sn) {
+    public List<EnergyData> getMeterTrend(String sn, Integer limit) {
         Meter meter = meterMapper.selectOne(new LambdaQueryWrapper<Meter>().eq(Meter::getSn, sn));
         if (meter == null) {
             return Collections.emptyList();
@@ -29,7 +29,7 @@ public class StatsServiceImpl implements StatsService {
         return energyDataMapper.selectList(new LambdaQueryWrapper<EnergyData>()
                 .eq(EnergyData::getMeterId, meter.getId())
                 .orderByDesc(EnergyData::getCollectTime)
-                .last("LIMIT 10"));
+                .last("LIMIT " + limit));
     }
 
     @Override

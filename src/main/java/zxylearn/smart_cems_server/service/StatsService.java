@@ -5,6 +5,6 @@ import java.util.Map;
 import zxylearn.smart_cems_server.entity.EnergyData;
 
 public interface StatsService {
-    List<EnergyData> getMeterTrend(String sn);
+    List<EnergyData> getMeterTrend(String sn, Integer limit);
     List<Map<String, Object>> getBuildingStats();
 }

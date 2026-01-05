@@ -3,24 +3,13 @@ package zxylearn.smart_cems_server.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import zxylearn.smart_cems_server.common.JwtUtils;
+import org.springframework.web.bind.annotation.*;
 import zxylearn.smart_cems_server.common.Result;
+import zxylearn.smart_cems_server.dto.CaptchaResponse;
 import zxylearn.smart_cems_server.dto.LoginRequest;
-
 import zxylearn.smart_cems_server.dto.LoginResponse;
-
-import org.springframework.security.crypto.password.PasswordEncoder;
 import zxylearn.smart_cems_server.dto.RegisterRequest;
-import zxylearn.smart_cems_server.entity.SysUser;
-import zxylearn.smart_cems_server.mapper.SysUserMapper;
+import zxylearn.smart_cems_server.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
@@ -28,52 +17,38 @@ import zxylearn.smart_cems_server.mapper.SysUserMapper;
 public class AuthController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private AuthService authService;
 
-    @Autowired
-    private JwtUtils jwtUtils;
+    @GetMapping("/captcha/image")
+    @Operation(summary = "获取图形验证码")
+    public Result<CaptchaResponse> getImageCaptcha() {
+        return Result.success(authService.getImageCaptcha());
+    }
 
-    @Autowired
-    private SysUserMapper sysUserMapper;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    @GetMapping("/captcha/email")
+    @Operation(summary = "获取邮箱验证码")
+    public Result<String> getEmailCaptcha(@RequestParam String email) {
+        authService.sendEmailCaptcha(email);
+        return Result.success("验证码已发送");
+    }
 
     @PostMapping("/login")
     @Operation(summary = "用户登录")
     public Result<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
-        );
-
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtUtils.generateToken(userDetails.getUsername());
-
-        LoginResponse response = new LoginResponse();
-        response.setToken(token);
-        response.setUsername(userDetails.getUsername());
-        // 假设角色是第一个权限
-        response.setRole(userDetails.getAuthorities().stream().findFirst().get().getAuthority());
-
-        return Result.success(response);
-
+        return Result.success(authService.login(loginRequest));
     }
 
     @PostMapping("/register")
     @Operation(summary = "用户注册")
     public Result<String> register(@RequestBody RegisterRequest request) {
-        if (sysUserMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysUser>()
-                .eq(SysUser::getUsername, request.getUsername())) > 0) {
-            throw new RuntimeException("用户名已存在");
-        }
-
-        SysUser user = new SysUser();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole("USER");
-        sysUserMapper.insert(user);
-
+        authService.register(request);
         return Result.success("注册成功");
     }
 
+    @PostMapping("/logout")
+    @Operation(summary = "退出登录")
+    public Result<String> logout(@RequestHeader("Authorization") String token) {
+        authService.logout(token);
+        return Result.success("退出成功");
+    }
 }
