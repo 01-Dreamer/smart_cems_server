@@ -25,7 +25,7 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         if (buildingService.count() > 0) {
-            System.out.println("数据已初始化，跳过...");
+            System.out.println("已有初始化数据，跳过...");
             return;
         }
 
