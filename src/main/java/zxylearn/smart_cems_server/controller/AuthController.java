@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import zxylearn.smart_cems_server.common.JwtUtils;
+import zxylearn.smart_cems_server.common.Result;
 import zxylearn.smart_cems_server.dto.LoginRequest;
+
 import zxylearn.smart_cems_server.dto.LoginResponse;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +41,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "用户登录")
-    public LoginResponse login(@RequestBody LoginRequest loginRequest) {
+    public Result<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
         );
@@ -50,15 +52,16 @@ public class AuthController {
         LoginResponse response = new LoginResponse();
         response.setToken(token);
         response.setUsername(userDetails.getUsername());
-        // Assuming role is the first authority
+        // 假设角色是第一个权限
         response.setRole(userDetails.getAuthorities().stream().findFirst().get().getAuthority());
 
-        return response;
+        return Result.success(response);
+
     }
 
     @PostMapping("/register")
     @Operation(summary = "用户注册")
-    public String register(@RequestBody RegisterRequest request) {
+    public Result<String> register(@RequestBody RegisterRequest request) {
         if (sysUserMapper.selectCount(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysUser>()
                 .eq(SysUser::getUsername, request.getUsername())) > 0) {
             throw new RuntimeException("用户名已存在");
@@ -70,6 +73,7 @@ public class AuthController {
         user.setRole("USER");
         sysUserMapper.insert(user);
 
-        return "注册成功";
+        return Result.success("注册成功");
     }
+
 }

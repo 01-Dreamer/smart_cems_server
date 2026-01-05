@@ -6,7 +6,8 @@ import zxylearn.smart_cems_server.entity.Meter;
 
 import java.util.Optional;
 
-// Pattern: Strategy Pattern
+// 设计模式：策略模式 (Strategy Pattern)
 public interface AlertStrategy {
     Optional<AlertRecord> check(EnergyData data, Meter meter);
 }
+

@@ -17,7 +17,7 @@ public class OverloadAlertStrategy implements AlertStrategy {
             alert.setMeterId(meter.getId());
             alert.setAlertType("OVERLOAD");
             alert.setAlertValue(data.getPower());
-            alert.setDetails("Current power " + data.getPower() + "W exceeds rated power " + meter.getRatedPower() + "W");
+            alert.setDetails("当前功率 " + data.getPower() + "W 超过额定功率 " + meter.getRatedPower() + "W");
             alert.setTriggerTime(LocalDateTime.now());
             return Optional.of(alert);
         }
