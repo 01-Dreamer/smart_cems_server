@@ -13,6 +13,7 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class JwtUtils {
@@ -34,6 +35,7 @@ public class JwtUtils {
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(subject)
+                .setId(UUID.randomUUID().toString())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getExpiration()))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -55,6 +57,10 @@ public class JwtUtils {
 
     public String extractRole(String token) {
         return (String) extractAllClaims(token).get("role");
+    }
+
+    public String extractJti(String token) {
+        return extractAllClaims(token).getId();
     }
 
     public Date extractExpiration(String token) {

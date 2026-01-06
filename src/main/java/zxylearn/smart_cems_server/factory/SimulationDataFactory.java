@@ -10,10 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Random;
 
-/**
- * 设计模式：工厂模式 (Factory Pattern)
- * 描述：封装创建模拟能耗数据对象的逻辑。
- */
+
 @Component
 public class SimulationDataFactory {
 

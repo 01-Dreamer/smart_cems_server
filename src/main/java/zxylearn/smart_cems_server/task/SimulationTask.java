@@ -45,13 +45,14 @@ public class SimulationTask {
     private int recordCount = 0;
     private final java.util.Map<Long, BigDecimal> meterConsumptionMap = new java.util.concurrent.ConcurrentHashMap<>();
 
+    // 每5秒模拟生成一次能耗数据
     @Scheduled(fixedRate = 5000)
     public void simulateData() {
         List<Meter> meters = meterService.list();
         if (meters.isEmpty()) return;
 
-        recordCount++;
         // 每20-50条记录触发一次故障
+        recordCount++;
         boolean triggerFault = (recordCount % (20 + random.nextInt(31))) == 0;
 
         for (Meter meter : meters) {
@@ -63,28 +64,25 @@ public class SimulationTask {
             // 计算累计用电量
             calculateAccumulation(data, meter);
 
-            // 1. 写入 Redis 缓存 (List) - 用于持久化
+            // 写入 Redis 缓存
             redisTemplate.opsForList().rightPush(REDIS_DATA_KEY, data);
-
-            // 2. 写入 Redis 趋势缓存 (List) - 用于前端实时查询
-            // 维护每个设备最近 50 条数据
             String trendKey = "meter:trend:" + meter.getSn();
             redisTemplate.opsForList().leftPush(trendKey, data);
             redisTemplate.opsForList().trim(trendKey, 0, 49);
 
-            // 发送消息到 RabbitMQ (观察者模式) - 实现解耦
+            // 发送消息到 RabbitMQ
             EnergyDataMessage message = new EnergyDataMessage(data, meter);
             rabbitTemplate.convertAndSend(RabbitConfig.ALERT_EXCHANGE, RabbitConfig.ALERT_ROUTING_KEY, message);
         }
     }
 
-    @Scheduled(fixedRate = 60000) // 每1分钟同步一次到 MySQL
+    // 每60秒将Redis缓存数据批量同步到MySQL
+    @Scheduled(fixedRate = 60000)
     public void syncDataToDb() {
         List<EnergyData> batchList = new ArrayList<>();
         Long size = redisTemplate.opsForList().size(REDIS_DATA_KEY);
         
         if (size != null && size > 0) {
-            // 每次最多同步 1000 条，避免一次性压力过大
             int batchSize = 1000;
             long count = Math.min(size, batchSize);
             
