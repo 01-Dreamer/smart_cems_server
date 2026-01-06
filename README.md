@@ -25,13 +25,22 @@
 (请参考前端项目文档)
 
 ## 5. 设计模式应用
-本项目显式应用了以下设计模式：
-1. **策略模式 (Strategy Pattern)**: 用于处理不同类型的告警逻辑。
-   - 位置: `src/main/java/zxylearn/smart_cems_server/strategy/AlertStrategy.java`
-2. **观察者模式 (Observer Pattern)**: 用于解耦数据采集与告警处理。
-   - 位置: `src/main/java/zxylearn/smart_cems_server/event/AlertEventListener.java`
-3. **工厂模式 (Factory Pattern)**: 用于封装模拟数据的生成逻辑。
-   - 位置: `src/main/java/zxylearn/smart_cems_server/factory/SimulationDataFactory.java`
+本项目显式应用了以下设计模式，以提高代码的可维护性和扩展性：
+
+1. **策略模式 (Strategy Pattern)**
+   - **用途**: 定义一系列告警检查算法（如过载检测、电压异常检测），并将它们封装起来，使它们可以相互替换。
+   - **实现**: `AlertStrategy` 接口定义了统一的 `check` 方法。`AlertEventListener` 遍历所有实现了该接口的 Bean 来对同一份数据执行多种检查，无需修改主流程即可新增告警规则。
+   - **核心位置**: `src/main/java/zxylearn/smart_cems_server/strategy/AlertStrategy.java`
+
+2. **观察者模式 (Observer Pattern) - 基于 RabbitMQ**
+   - **用途**: 实现数据采集模块（被观察者）与告警分析模块（观察者）的完全解耦和异步通信。
+   - **实现**: `SimulationTask` 作为生产者，将采集到的能耗数据封装为消息发布到 RabbitMQ 交换机。`AlertEventListener` 作为消费者监听队列，一旦收到消息自动触发告警分析逻辑。这种方式避免了采集任务阻塞，并支持流量削峰。
+   - **核心位置**: `src/main/java/zxylearn/smart_cems_server/event/AlertEventListener.java`
+
+3. **工厂模式 (Factory Pattern)**
+   - **用途**: 封装复杂的对象创建逻辑，特别是带有随机性和业务规则（如模拟故障注入）的数据生成过程。
+   - **实现**: `SimulationDataFactory` 负责生产 `EnergyData` 对象，内部处理了电压浮动、功率因数计算及故障模拟等细节。调用者只需传入设备信息，无需关心数据具体的生成算法。
+   - **核心位置**: `src/main/java/zxylearn/smart_cems_server/factory/SimulationDataFactory.java`
 
 ## 6. 核心功能
 - **数据模拟**: 后端定时任务每 5 秒生成一次能耗数据，模拟真实物理环境波动。
