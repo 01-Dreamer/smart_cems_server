@@ -15,14 +15,14 @@ import zxylearn.smart_cems_server.service.AlertRecordService;
 
 @RestController
 @RequestMapping("/alert")
-@Tag(name = "告警管理", description = "异常告警查询接口")
+@Tag(name = "告警管理")
 public class AlertController {
 
     @Autowired
     private AlertRecordService alertRecordService;
 
     @GetMapping("/list")
-    @Operation(summary = "获取告警记录 (分页, 支持按SN查询)")
+    @Operation(summary = "获取告警记录")
     public Result<IPage<AlertRecord>> list(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size,

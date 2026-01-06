@@ -16,7 +16,7 @@ public class Meter implements Serializable {
     private Long id;
     private String name;
     private String sn;
-    private String status; // ONLINE, OFFLINE, REMOVED
+    private String status; // ONLINE -- 运行中, OFFLINE -- 下线, REMOVED -- 已移除
     private BigDecimal ratedPower;
     private Long buildingId;
     private String roomNo;

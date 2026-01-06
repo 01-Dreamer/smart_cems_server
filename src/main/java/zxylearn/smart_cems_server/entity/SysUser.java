@@ -12,5 +12,5 @@ public class SysUser {
     private Long id;
     private String username;
     private String password;
-    private String role; // ADMIN, USER
+    private String role; // ADMIN -- 管理员, USER -- 用户
 }

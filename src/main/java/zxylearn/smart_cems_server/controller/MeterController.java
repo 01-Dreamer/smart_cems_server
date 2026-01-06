@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/meter")
-@Tag(name = "设备管理", description = "智能电表设备管理接口")
+@Tag(name = "设备管理")
 public class MeterController {
 
     @Autowired

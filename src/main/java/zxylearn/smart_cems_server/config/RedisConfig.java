@@ -31,13 +31,9 @@ public class RedisConfig {
 
         StringRedisSerializer stringRedisSerializer = new StringRedisSerializer();
 
-        // key采用String的序列化方式
         template.setKeySerializer(stringRedisSerializer);
-        // hash的key也采用String的序列化方式
         template.setHashKeySerializer(stringRedisSerializer);
-        // value序列化方式采用jackson
         template.setValueSerializer(jackson2JsonRedisSerializer);
-        // hash的value序列化方式采用jackson
         template.setHashValueSerializer(jackson2JsonRedisSerializer);
         template.afterPropertiesSet();
 
@@ -47,7 +43,7 @@ public class RedisConfig {
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory factory) {
         RedisCacheConfiguration config = RedisCacheConfiguration.defaultCacheConfig()
-                .entryTtl(Duration.ofHours(1)) // 默认缓存1小时
+                .entryTtl(Duration.ofHours(1))
                 .serializeKeysWith(RedisSerializationContext.SerializationPair.fromSerializer(new StringRedisSerializer()))
                 .serializeValuesWith(RedisSerializationContext.SerializationPair.fromSerializer(getJackson2JsonRedisSerializer()))
                 .disableCachingNullValues();
@@ -62,7 +58,6 @@ public class RedisConfig {
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        // 注册 JavaTimeModule 以支持 LocalDateTime
         om.findAndRegisterModules();
         jackson2JsonRedisSerializer.setObjectMapper(om);
         return jackson2JsonRedisSerializer;

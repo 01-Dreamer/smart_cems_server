@@ -19,7 +19,7 @@ public class StatsController {
 
     private final StatsService statsService;
 
-    @Operation(summary = "获取设备历史趋势 (默认最近10条)")
+    @Operation(summary = "获取设备历史趋势")
     @GetMapping("/trend")
     public Result<List<EnergyData>> getMeterTrend(
             @RequestParam String sn,

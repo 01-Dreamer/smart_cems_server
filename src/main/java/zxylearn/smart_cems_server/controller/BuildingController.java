@@ -14,7 +14,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/building")
-@Tag(name = "建筑管理", description = "建筑信息管理接口")
+@Tag(name = "建筑管理")
 public class BuildingController {
 
     @Autowired
@@ -27,7 +27,7 @@ public class BuildingController {
     }
 
     @PostMapping("/add")
-    @Operation(summary = "添加建筑 (仅管理员)")
+    @Operation(summary = "添加建筑")
     @PreAuthorize("hasRole('ADMIN')")
     public Result<Boolean> add(@RequestBody Building building) {
         return Result.success(buildingService.save(building));

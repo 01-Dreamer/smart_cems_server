@@ -1,9 +1,10 @@
 package zxylearn.smart_cems_server.event;
 
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import zxylearn.smart_cems_server.config.RabbitConfig;
+import zxylearn.smart_cems_server.dto.EnergyDataMessage;
 import zxylearn.smart_cems_server.entity.AlertRecord;
 import zxylearn.smart_cems_server.service.AlertRecordService;
 import zxylearn.smart_cems_server.strategy.AlertStrategy;
@@ -20,13 +21,13 @@ public class AlertEventListener {
     @Autowired
     private AlertRecordService alertRecordService;
 
-    // 设计模式：观察者模式 (Observer Pattern)
-    @EventListener
-    @Async // 可选：异步处理告警
-    public void handleEnergyDataCollected(EnergyDataCollectedEvent event) {
+    // 设计模式：观察者模式 (Observer Pattern via RabbitMQ)
+    // 监听 RabbitMQ 队列，解耦告警检查逻辑
+    @RabbitListener(queues = RabbitConfig.ALERT_QUEUE)
+    public void handleEnergyDataMessage(EnergyDataMessage message) {
 
         for (AlertStrategy strategy : alertStrategies) {
-            Optional<AlertRecord> alert = strategy.check(event.getEnergyData(), event.getMeter());
+            Optional<AlertRecord> alert = strategy.check(message.getEnergyData(), message.getMeter());
             alert.ifPresent(alertRecordService::save);
         }
     }

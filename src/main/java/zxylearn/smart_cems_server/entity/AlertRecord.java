@@ -13,7 +13,7 @@ public class AlertRecord {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long meterId;
-    private String alertType; // OVERLOAD, VOLTAGE_ABNORMAL
+    private String alertType; // OVERLOAD -- 功率过大, VOLTAGE_ABNORMAL -- 电压异常
     private BigDecimal alertValue;
     private String details;
     private LocalDateTime triggerTime;

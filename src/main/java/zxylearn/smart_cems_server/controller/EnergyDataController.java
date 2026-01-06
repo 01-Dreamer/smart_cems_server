@@ -14,14 +14,14 @@ import zxylearn.smart_cems_server.common.Result;
 
 @RestController
 @RequestMapping("/energy")
-@Tag(name = "能耗数据管理", description = "能耗数据查询接口")
+@Tag(name = "能耗数据管理")
 public class EnergyDataController {
 
     @Autowired
     private EnergyDataService energyDataService;
 
     @GetMapping("/list")
-    @Operation(summary = "获取能耗数据 (分页)")
+    @Operation(summary = "获取能耗数据")
     public Result<IPage<EnergyData>> list(
             @RequestParam(defaultValue = "1") Integer page,
             @RequestParam(defaultValue = "10") Integer size) {

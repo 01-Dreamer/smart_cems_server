@@ -9,8 +9,6 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -25,9 +23,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtUtils jwtUtils;
-
-    @Autowired
-    private UserDetailsService userDetailsService;
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
@@ -60,10 +55,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // 优化：直接从 JWT 中解析角色，避免查询数据库
             if (jwtUtils.validateToken(jwt)) {
                 String role = jwtUtils.extractRole(jwt);
-                // 如果 token 中没有角色信息（旧 token），可能需要处理或拒绝
                 if (role != null) {
                     List<SimpleGrantedAuthority> authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
                     UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
