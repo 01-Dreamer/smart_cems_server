@@ -40,13 +40,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
             jwt = authorizationHeader.substring(7);
-            // 检查黑名单
-            if (redisTemplate.hasKey(JWT_BLACKLIST_KEY + jwt)) {
-                chain.doFilter(request, response);
-                return;
-            }
 
             try {
+                // 检查黑名单
+                String jti = jwtUtils.extractJti(jwt);
+                if (jti != null && redisTemplate.hasKey(JWT_BLACKLIST_KEY + jti)) {
+                    chain.doFilter(request, response);
+                    return;
+                }
+                
                 username = jwtUtils.extractUsername(jwt);
             } catch (Exception e) {
                 // Token 无效或已过期

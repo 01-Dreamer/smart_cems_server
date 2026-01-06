@@ -21,8 +21,7 @@ public class AlertEventListener {
     @Autowired
     private AlertRecordService alertRecordService;
 
-    // 设计模式：观察者模式 (Observer Pattern via RabbitMQ)
-    // 监听 RabbitMQ 队列，解耦告警检查逻辑
+    // 监听 RabbitMQ 队列
     @RabbitListener(queues = RabbitConfig.ALERT_QUEUE)
     public void handleEnergyDataMessage(EnergyDataMessage message) {
 

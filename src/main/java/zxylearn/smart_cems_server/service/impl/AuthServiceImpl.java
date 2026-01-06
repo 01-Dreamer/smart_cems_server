@@ -149,7 +149,8 @@ public class AuthServiceImpl implements AuthService {
         long ttl = (expiration.getTime() - System.currentTimeMillis()) / 1000;
         
         if (ttl > 0) {
-            redisTemplate.opsForValue().set(JWT_BLACKLIST_KEY + token, "blacklisted", ttl, TimeUnit.SECONDS);
+            String jti = jwtUtils.extractJti(token);
+            redisTemplate.opsForValue().set(JWT_BLACKLIST_KEY + jti, "blacklisted", ttl, TimeUnit.SECONDS);
         }
     }
 }
