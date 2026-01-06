@@ -13,7 +13,7 @@ import zxylearn.smart_cems_server.service.AuthService;
 
 @RestController
 @RequestMapping("/auth")
-@Tag(name = "认证管理", description = "用户认证接口")
+@Tag(name = "认证管理")
 public class AuthController {
 
     @Autowired

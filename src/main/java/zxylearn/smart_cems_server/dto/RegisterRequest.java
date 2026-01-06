@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class RegisterRequest {
-    private String username; // 邮箱
+    private String username;
     private String password;
-    private String code; // 邮箱验证码
+    private String code;
 }

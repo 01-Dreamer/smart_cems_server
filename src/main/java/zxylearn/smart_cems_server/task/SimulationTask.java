@@ -1,13 +1,14 @@
 package zxylearn.smart_cems_server.task;
 
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import zxylearn.smart_cems_server.config.RabbitConfig;
+import zxylearn.smart_cems_server.dto.EnergyDataMessage;
 import zxylearn.smart_cems_server.entity.EnergyData;
 import zxylearn.smart_cems_server.entity.Meter;
-import zxylearn.smart_cems_server.event.EnergyDataCollectedEvent;
 import zxylearn.smart_cems_server.factory.SimulationDataFactory;
 import zxylearn.smart_cems_server.service.EnergyDataService;
 import zxylearn.smart_cems_server.service.MeterService;
@@ -24,13 +25,13 @@ import lombok.extern.slf4j.Slf4j;
 public class SimulationTask {
 
     @Autowired
+    private RabbitTemplate rabbitTemplate; // Pattern: Observer (via RabbitMQ)
+
+    @Autowired
     private MeterService meterService;
 
     @Autowired
     private EnergyDataService energyDataService;
-
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
 
     @Autowired
     private SimulationDataFactory simulationDataFactory;
@@ -44,13 +45,14 @@ public class SimulationTask {
     private int recordCount = 0;
     private final java.util.Map<Long, BigDecimal> meterConsumptionMap = new java.util.concurrent.ConcurrentHashMap<>();
 
-    @Scheduled(fixedRate = 5000) // 每5秒执行一次
+    @Scheduled(fixedRate = 5000)
     public void simulateData() {
         List<Meter> meters = meterService.list();
         if (meters.isEmpty()) return;
 
         recordCount++;
-        boolean triggerFault = (recordCount % (20 + random.nextInt(31))) == 0; // 每20-50条记录触发一次故障
+        // 每20-50条记录触发一次故障
+        boolean triggerFault = (recordCount % (20 + random.nextInt(31))) == 0;
 
         for (Meter meter : meters) {
             if (!"ONLINE".equals(meter.getStatus())) continue;
@@ -70,8 +72,9 @@ public class SimulationTask {
             redisTemplate.opsForList().leftPush(trendKey, data);
             redisTemplate.opsForList().trim(trendKey, 0, 49);
 
-            // 发布事件 (观察者模式) - 依然实时触发告警
-            eventPublisher.publishEvent(new EnergyDataCollectedEvent(this, data, meter));
+            // 发送消息到 RabbitMQ (观察者模式) - 实现解耦
+            EnergyDataMessage message = new EnergyDataMessage(data, meter);
+            rabbitTemplate.convertAndSend(RabbitConfig.ALERT_EXCHANGE, RabbitConfig.ALERT_ROUTING_KEY, message);
         }
     }
 

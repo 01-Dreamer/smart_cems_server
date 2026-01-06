@@ -10,7 +10,7 @@
 - **工具**: Lombok, Hutool
 
 ## 3. 数据库配置
-1. 创建数据库 `energy_20231120171` (请根据学号修改)。
+1. 创建数据库 `energy_20231120171` 
 2. 修改 `src/main/resources/application.properties` 中的数据库连接信息。
 3. 启动项目，系统会自动初始化所需的表结构和测试数据。
 
@@ -26,7 +26,7 @@
 
 ## 5. 设计模式应用
 本项目显式应用了以下设计模式：
-1. **策略模式 (Strategy Pattern)**: 用于处理不同类型的告警逻辑 (过载/电压异常)。
+1. **策略模式 (Strategy Pattern)**: 用于处理不同类型的告警逻辑。
    - 位置: `src/main/java/zxylearn/smart_cems_server/strategy/AlertStrategy.java`
 2. **观察者模式 (Observer Pattern)**: 用于解耦数据采集与告警处理。
    - 位置: `src/main/java/zxylearn/smart_cems_server/event/AlertEventListener.java`

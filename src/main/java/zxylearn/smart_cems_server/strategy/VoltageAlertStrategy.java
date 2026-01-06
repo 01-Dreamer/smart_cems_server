@@ -14,7 +14,7 @@ public class VoltageAlertStrategy implements AlertStrategy {
     @Override
     public Optional<AlertRecord> check(EnergyData data, Meter meter) {
         BigDecimal voltage = data.getVoltage();
-        // 220V +/- 10% => 198V - 242V
+        // 198V - 242V
         if (voltage.compareTo(new BigDecimal("198")) < 0 || voltage.compareTo(new BigDecimal("242")) > 0) {
             AlertRecord alert = new AlertRecord();
             alert.setMeterId(meter.getId());
